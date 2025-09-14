@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shots_studio/services/analytics/analytics_service.dart';
 import 'package:shots_studio/services/corrupt_file_service.dart';
 import 'package:shots_studio/models/screenshot_model.dart';
 // import 'package:shots_studio/screens/debug_notifications_screen.dart'; // Uncomment for debugging
@@ -49,79 +48,18 @@ class AdvancedSettingsSection extends StatefulWidget {
 }
 
 class _AdvancedSettingsSectionState extends State<AdvancedSettingsSection> {
-  bool _analyticsEnabled =
-      !kDebugMode; // Default to false in debug mode, true in production
-  bool _serverMessagesEnabled = true;
-  bool _betaTestingEnabled = false;
+  // Analytics/Server/Beta toggles removed for privacy-focused fork
 
   static const String _maxParallelPrefKey = 'maxParallel';
-  static const String _serverMessagesPrefKey = 'server_messages_enabled';
-  static const String _betaTestingPrefKey = 'beta_testing_enabled';
 
   @override
   void initState() {
     super.initState();
-
-    // Initialize analytics consent state
-    if (widget.currentAnalyticsEnabled != null) {
-      _analyticsEnabled = widget.currentAnalyticsEnabled!;
-    } else {
-      _loadAnalyticsEnabledPref();
-    }
-
-    // Initialize server messages state
-    if (widget.currentServerMessagesEnabled != null) {
-      _serverMessagesEnabled = widget.currentServerMessagesEnabled!;
-    } else {
-      _loadServerMessagesEnabledPref();
-    }
-
-    // Initialize beta testing state
-    if (widget.currentBetaTestingEnabled != null) {
-      _betaTestingEnabled = widget.currentBetaTestingEnabled!;
-    } else {
-      _loadBetaTestingEnabledPref();
-    }
-  }
-
-  void _loadAnalyticsEnabledPref() async {
-    final analyticsService = AnalyticsService();
-    setState(() {
-      _analyticsEnabled = analyticsService.analyticsEnabled;
-    });
-  }
-
-  Future<void> _loadServerMessagesEnabledPref() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _serverMessagesEnabled = prefs.getBool(_serverMessagesPrefKey) ?? true;
-    });
-  }
-
-  Future<void> _loadBetaTestingEnabledPref() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _betaTestingEnabled = prefs.getBool(_betaTestingPrefKey) ?? false;
-    });
   }
 
   @override
   void didUpdateWidget(covariant AdvancedSettingsSection oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.currentAnalyticsEnabled != oldWidget.currentAnalyticsEnabled &&
-        widget.currentAnalyticsEnabled != null) {
-      _analyticsEnabled = widget.currentAnalyticsEnabled!;
-    }
-    if (widget.currentServerMessagesEnabled !=
-            oldWidget.currentServerMessagesEnabled &&
-        widget.currentServerMessagesEnabled != null) {
-      _serverMessagesEnabled = widget.currentServerMessagesEnabled!;
-    }
-    if (widget.currentBetaTestingEnabled !=
-            oldWidget.currentBetaTestingEnabled &&
-        widget.currentBetaTestingEnabled != null) {
-      _betaTestingEnabled = widget.currentBetaTestingEnabled!;
-    }
   }
 
   Future<void> _saveMaxParallel(int value) async {
@@ -130,22 +68,15 @@ class _AdvancedSettingsSectionState extends State<AdvancedSettingsSection> {
   }
 
   Future<void> _saveAnalyticsEnabled(bool value) async {
-    final analyticsService = AnalyticsService();
-    if (value) {
-      await analyticsService.enableAnalytics();
-    } else {
-      await analyticsService.disableAnalytics();
-    }
+    // No-op: analytics disabled in privacy-focused fork
   }
 
   Future<void> _saveServerMessagesEnabled(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_serverMessagesPrefKey, value);
+    // No-op: server messages disabled in privacy-focused fork
   }
 
   Future<void> _saveBetaTestingEnabled(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_betaTestingPrefKey, value);
+    // No-op: beta updates disabled in privacy-focused fork
   }
 
   /// Clear all corrupt files from the app using the CorruptFileService
@@ -280,10 +211,7 @@ class _AdvancedSettingsSectionState extends State<AdvancedSettingsSection> {
                         widget.onMaxParallelChanged(intValue);
                         _saveMaxParallel(intValue);
 
-                        // Track analytics for max parallel processes change
-                        AnalyticsService().logFeatureUsed(
-                          'settings_max_parallel_changed',
-                        );
+                        // Analytics removed
                       },
                     ),
                   ),
@@ -296,106 +224,7 @@ class _AdvancedSettingsSectionState extends State<AdvancedSettingsSection> {
             ],
           ),
         ),
-        SwitchListTile(
-          secondary: Icon(
-            Icons.analytics_outlined,
-            color: theme.colorScheme.primary,
-          ),
-          title: Text(
-            AppLocalizations.of(context)?.analyticsAndTelemetry ??
-                'Analytics & Telemetry',
-            style: TextStyle(color: theme.colorScheme.onSecondaryContainer),
-          ),
-          subtitle: Text(
-            _analyticsEnabled
-                ? 'Help improve the app by sharing usage data'
-                : 'Analytics and crash reporting disabled',
-            style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-          ),
-          value: _analyticsEnabled,
-          activeColor: theme.colorScheme.primary,
-          onChanged: (bool value) {
-            setState(() {
-              _analyticsEnabled = value;
-            });
-            _saveAnalyticsEnabled(value);
-
-            // Track analytics for analytics setting (meta-analytics!)
-            AnalyticsService().logFeatureUsed(
-              'settings_analytics_${value ? 'enabled' : 'disabled'}',
-            );
-
-            if (widget.onAnalyticsEnabledChanged != null) {
-              widget.onAnalyticsEnabledChanged!(value);
-            }
-          },
-        ),
-        SwitchListTile(
-          secondary: Icon(
-            Icons.notifications_outlined,
-            color: theme.colorScheme.primary,
-          ),
-          title: Text(
-            AppLocalizations.of(context)?.serverMessages ?? 'Server Messages',
-            style: TextStyle(color: theme.colorScheme.onSecondaryContainer),
-          ),
-          subtitle: Text(
-            _serverMessagesEnabled
-                ? 'Receive important updates and notifications'
-                : 'Server messages and notifications disabled',
-            style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-          ),
-          value: _serverMessagesEnabled,
-          activeColor: theme.colorScheme.primary,
-          onChanged: (bool value) {
-            setState(() {
-              _serverMessagesEnabled = value;
-            });
-            _saveServerMessagesEnabled(value);
-
-            // Track analytics for server messages setting
-            AnalyticsService().logFeatureUsed(
-              'settings_server_messages_${value ? 'enabled' : 'disabled'}',
-            );
-
-            if (widget.onServerMessagesEnabledChanged != null) {
-              widget.onServerMessagesEnabledChanged!(value);
-            }
-          },
-        ),
-        SwitchListTile(
-          secondary: Icon(
-            Icons.science_outlined,
-            color: theme.colorScheme.primary,
-          ),
-          title: Text(
-            AppLocalizations.of(context)?.betaTesting ?? 'Beta Testing',
-            style: TextStyle(color: theme.colorScheme.onSecondaryContainer),
-          ),
-          subtitle: Text(
-            _betaTestingEnabled
-                ? 'Receive pre-release updates'
-                : 'Only receive stable updates',
-            style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-          ),
-          value: _betaTestingEnabled,
-          activeColor: theme.colorScheme.primary,
-          onChanged: (bool value) {
-            setState(() {
-              _betaTestingEnabled = value;
-            });
-            _saveBetaTestingEnabled(value);
-
-            // Track analytics for beta testing setting
-            AnalyticsService().logFeatureUsed(
-              'settings_beta_testing_${value ? 'enabled' : 'disabled'}',
-            );
-
-            if (widget.onBetaTestingEnabledChanged != null) {
-              widget.onBetaTestingEnabledChanged!(value);
-            }
-          },
-        ),
+        // Analytics, server messages, and beta testing toggles removed
         // Reset AI Processing Button
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -403,11 +232,6 @@ class _AdvancedSettingsSectionState extends State<AdvancedSettingsSection> {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () {
-                // Track analytics for reset AI processing
-                AnalyticsService().logFeatureUsed(
-                  'settings_reset_ai_processing',
-                );
-
                 if (widget.onResetAiProcessing != null) {
                   widget.onResetAiProcessing!();
                 }

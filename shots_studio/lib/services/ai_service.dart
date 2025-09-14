@@ -276,8 +276,20 @@ class GemmaAPIProvider implements APIProvider {
       // print("Extracted prompt: $prompt");
 
       // Generate response using Gemma service
+      // Ask Gemma to bracket JSON for more robust parsing
+      final String wrappedPrompt = """
+You are a strict JSON generator. Do not add any prose.
+Output must be ONLY a single JSON array. No explanations.
+Use plain ASCII quotes, no fancy quotes.
+
+BEGIN_JSON
+$prompt
+Respond strictly with only the JSON array output between BEGIN_JSON and END_JSON markers.
+END_JSON
+""";
+
       final response = await _gemmaService.generateResponse(
-        prompt: prompt,
+        prompt: wrappedPrompt,
         imageFile: tempFile,
         temperature: 0.8,
         randomSeed: 1,

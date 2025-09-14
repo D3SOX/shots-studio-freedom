@@ -29,8 +29,8 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Show AI buttons when auto-processing is disabled
-    final bool showAIButtons = !autoProcessEnabled;
+    // Always allow manual Process with AI in this fork
+    final bool showAIButtons = true;
 
     return AppBar(
       title: Text(

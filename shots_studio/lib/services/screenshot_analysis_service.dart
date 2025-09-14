@@ -169,10 +169,24 @@ class ScreenshotAnalysisService extends AIService {
     try {
       final String responseText = response['data'];
       List<dynamic> parsedResponse = [];
-      // Clean the response text by removing markdown code fences
-      String cleanedResponseText = JsonUtils.cleanMarkdownCodeFences(
-        responseText,
-      );
+      // Prefer extracting bounded JSON if present to avoid stray text
+      const String beginMarker = 'BEGIN_JSON';
+      const String endMarker = 'END_JSON';
+      String cleanedResponseText;
+
+      if (responseText.contains(beginMarker) && responseText.contains(endMarker)) {
+        final int start = responseText.indexOf(beginMarker) + beginMarker.length;
+        final int end = responseText.lastIndexOf(endMarker);
+        cleanedResponseText = responseText.substring(start, end).trim();
+      } else {
+        // Clean the response text by removing markdown code fences
+        cleanedResponseText = JsonUtils.cleanMarkdownCodeFences(
+          responseText,
+        );
+      }
+
+      // Normalize smart quotes to avoid invalid JSON caused by unicode quotes
+      cleanedResponseText = JsonUtils.normalizeQuotes(cleanedResponseText);
 
       // Check if the JSON is complete (has matching brackets)
       if (!JsonUtils.isCompleteJson(cleanedResponseText)) {
@@ -188,12 +202,14 @@ class ScreenshotAnalysisService extends AIService {
         print("Initial JSON parsing failed: $e");
 
         // Try to extract JSON array with regex as fallback
-        final RegExp jsonRegExp = RegExp(r'\[.*\]', dotAll: true);
+        // Extract the last well-formed JSON array from text
+        final RegExp jsonRegExp = RegExp(r'\[[\s\S]*\]', dotAll: true);
         final match = jsonRegExp.firstMatch(cleanedResponseText);
 
         if (match != null) {
           try {
             String extractedJson = match.group(0)!;
+            extractedJson = JsonUtils.normalizeQuotes(extractedJson);
             parsedResponse = jsonDecode(extractedJson);
           } catch (e2) {
             print("Failed to parse extracted JSON: $e2");

@@ -92,4 +92,17 @@ class JsonUtils {
 
     return cleanedResponseText.trim();
   }
+
+  /// Normalize curly/smart quotes to ASCII quotes for safer JSON decoding
+  static String normalizeQuotes(String text) {
+    return text
+        .replaceAll('\u201C', '"') // left double quote
+        .replaceAll('\u201D', '"') // right double quote
+        .replaceAll('\u2018', '\'') // left single quote
+        .replaceAll('\u2019', '\'') // right single quote
+        .replaceAll('“', '"')
+        .replaceAll('”', '"')
+        .replaceAll('‘', '\'')
+        .replaceAll('’', '\'');
+  }
 }

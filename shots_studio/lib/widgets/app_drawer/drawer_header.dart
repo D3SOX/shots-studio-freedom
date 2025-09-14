@@ -20,30 +20,6 @@ class _AppDrawerHeaderState extends State<AppDrawerHeader> {
     super.dispose();
   }
 
-  void _showSponsorshipDialog() {
-    // Enhanced analytics for sponsorship access from drawer header
-    AnalyticsService().logFeatureUsed('random_support_button_engaged');
-    AnalyticsService().logFeatureAdopted('support_button_interaction');
-
-    // Log which text was showing when clicked
-    final giftTexts = ['support_us', 'gift_dollar1', 'gift_dollar5'];
-    AnalyticsService().logFeatureUsed(
-      'support_clicked_on_${giftTexts[_currentTextIndex]}',
-    );
-
-    final sponsorshipOptions = SponsorshipService.getAllOptions();
-
-    // Route to fullscreen dialog
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder:
-            (context) =>
-                SponsorshipDialog(sponsorshipOptions: sponsorshipOptions),
-        fullscreenDialog: true,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);

@@ -306,9 +306,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       AnalyticsService().logInstallInfo();
       AnalyticsService().logInstallSource(BuildSource.current.value);
 
-      // Disable automatic update checks and Gemini auto-processing in privacy fork
+      // Disable automatic update checks in privacy fork
       // _checkForUpdates();
-      // _autoProcessWithGemini();
+      // Keep auto-processing to work with local Gemma
+      _autoProcessWithGemini();
     });
   }
 
