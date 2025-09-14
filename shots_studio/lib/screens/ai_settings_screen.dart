@@ -88,9 +88,6 @@ class _AISettingsScreenState extends State<AISettingsScreen> {
                   (modelPath != null && modelPath.isNotEmpty)
                       ? (prefs.getBool(prefKey) ?? false)
                       : false;
-            } else {
-              _providerStates[provider] =
-                  prefs.getBool(prefKey) ?? (provider == 'gemini');
             }
           }
         }

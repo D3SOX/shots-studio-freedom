@@ -33,7 +33,6 @@ import 'package:shots_studio/widgets/update_dialog.dart';
 import 'package:shots_studio/widgets/server_message_dialog.dart';
 import 'package:shots_studio/utils/theme_utils.dart';
 import 'package:shots_studio/utils/theme_manager.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shots_studio/services/image_loader_service.dart';
 import 'package:shots_studio/services/custom_path_service.dart';
 import 'package:shots_studio/services/corrupt_file_service.dart';
@@ -42,39 +41,28 @@ import 'package:shots_studio/utils/build_source.dart';
 import 'package:shots_studio/utils/display_utils.dart';
 
 void main() async {
-  await SentryFlutter.init(
-    (options) {
-      options.dsn =
-          'https://6f96d22977b283fc325e038ac45e6e5e@o4509484018958336.ingest.us.sentry.io/4509484020072448';
+  WidgetsFlutterBinding.ensureInitialized();
 
-      options.tracesSampleRate =
-          kDebugMode ? 0 : 0.1; // 30% in debug, 10% in production
-    },
-    appRunner: () async {
-      WidgetsFlutterBinding.ensureInitialized();
+  // Initialize display refresh rate detection and optimization
+  await DisplayUtils.initializeHighRefreshRate();
 
-      // Initialize display refresh rate detection and optimization
-      await DisplayUtils.initializeHighRefreshRate();
+  // Initialize Analytics (now no-op)
+  await AnalyticsService().initialize();
 
-      // Initialize Analytics (PostHog)
-      await AnalyticsService().initialize();
+  // Optimize image cache for better memory management
+  MemoryUtils.optimizeImageCache();
 
-      // Optimize image cache for better memory management
-      MemoryUtils.optimizeImageCache();
+  await NotificationService().init();
 
-      await NotificationService().init();
+  // Initialize background service for AI processing only on non-web platforms
+  if (!kIsWeb) {
+    print("Main: Initial background service setup");
+    // Set up notification channel for background service
+    await _setupBackgroundServiceNotificationChannel();
+    // Don't initialize service at app startup - we'll do it when needed
+  }
 
-      // Initialize background service for AI processing only on non-web platforms
-      if (!kIsWeb) {
-        print("Main: Initial background service setup");
-        // Set up notification channel for background service
-        await _setupBackgroundServiceNotificationChannel();
-        // Don't initialize service at app startup - we'll do it when needed
-      }
-
-      runApp(SentryWidget(child: const MyApp()));
-    },
-  );
+  runApp(const MyApp());
 }
 
 // Set up notification channel for background service
@@ -263,7 +251,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int _totalToLoad = 0;
 
   String? _apiKey;
-  String _selectedModelName = 'gemini-2.5-flash-lite';
+  String _selectedModelName = 'gemma';
   int _screenshotLimit = 1200;
   int _maxParallelAI = 4;
   bool _devMode = false;
@@ -295,10 +283,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _loadDataFromPrefs();
     _loadSettings();
 
-    // Initialize server message checking in background
-    if (!kIsWeb) {
-      _initializeServerMessageChecking();
-    }
+    // Server message checking disabled
 
     if (!kIsWeb) {
       _loadAndroidScreenshotsIfNeeded().then((_) {
@@ -318,11 +303,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         // Log install source analytics
         AnalyticsService().logInstallSource(BuildSource.current.value);
 
-        // API key guide will only show after privacy is accepted
-        await showApiKeyGuideIfNeeded(context, _apiKey, _updateApiKey);
+        // Cloud AI disabled: skip API key guide
 
         _checkForUpdates();
-        _checkForServerMessages();
+        // Server messages disabled
         _autoProcessWithGemini();
       }
     });
@@ -665,7 +649,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     setState(() {
       _apiKey = prefs.getString('apiKey');
       _selectedModelName =
-          prefs.getString('modelName') ?? 'gemini-2.5-flash-lite';
+          prefs.getString('modelName') ?? 'gemma';
       _screenshotLimit = prefs.getInt('limit') ?? 1200;
       _maxParallelAI = prefs.getInt('maxParallel') ?? 4;
       _devMode = prefs.getBool('dev_mode') ?? false;

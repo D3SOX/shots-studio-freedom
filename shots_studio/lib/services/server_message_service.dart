@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shots_studio/services/notification_service.dart';
@@ -8,10 +7,7 @@ import 'package:shots_studio/utils/build_source.dart';
 // TODO: Add don't show again functionality for messages
 
 class ServerMessageService {
-  static const List<String> baseUrls = [
-    'https://ansahmohammad.github.io/shots-studio/messages',
-    'https://gitlab.com/mohdansah10/shots-studio/-/raw/main/docs/messages',
-  ];
+  static const List<String> baseUrls = [];
 
   // Add cooldown for server requests to avoid spamming
   static DateTime? _lastRequestTime;
@@ -22,117 +18,19 @@ class ServerMessageService {
   static Future<MessageInfo?> checkForMessages({
     bool forceFetch = false,
   }) async {
-    try {
-      // Check cooldown unless force fetch is requested
-      if (!forceFetch && _lastRequestTime != null) {
-        final timeSinceLastRequest = DateTime.now().difference(
-          _lastRequestTime!,
-        );
-        if (timeSinceLastRequest < _requestCooldown) {
-          return null;
-        }
-      }
-
-      // Get current app version
-      final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = packageInfo.version;
-      // Fetch messages from a list of URLs with fallback
-      final messages = await _getServerMessages(currentVersion);
-      _lastRequestTime = DateTime.now();
-
-      if (messages == null || messages.isEmpty) {
-        return null;
-      }
-
-      // Process messages and find the most relevant one
-      final relevantMessage = await _processMessages(messages, currentVersion);
-      return relevantMessage;
-    } catch (e) {
-      _lastRequestTime = DateTime.now();
-      return null;
-    }
+    // Disabled: no server messages fetched
+    _lastRequestTime = DateTime.now();
+    return null;
   }
 
   /// Fetches messages from a specific base URL
   static Future<List<dynamic>?> _getServerMessages(String version) async {
-    for (final baseUrl in baseUrls) {
-      try {
-        // Construct version-specific messages URL
-        final messagesUrl = '$baseUrl/$version/messages.json';
-        final uri = Uri.parse(messagesUrl);
-        final response = await http
-            .get(
-              uri,
-              headers: {
-                'Accept': 'application/json',
-                'User-Agent': 'shots_studio_app',
-                'Content-Type': 'application/json',
-              },
-            )
-            .timeout(const Duration(seconds: 10));
-
-        if (response.statusCode == 200) {
-          final data = json.decode(response.body);
-          // Expect an object with a "messages" array
-          if (data is Map<String, dynamic> && data.containsKey('messages')) {
-            return data['messages'] as List<dynamic>;
-          } else if (data is List) {
-            // Fallback: direct array format
-            return data;
-          }
-
-          return null;
-        } else if (response.statusCode == 404) {
-          // If version-specific messages don't exist, try fallback to general messages.json
-          final fallbackMessages = await _getFallbackMessages(baseUrl);
-          if (fallbackMessages != null) {
-            return fallbackMessages;
-          }
-        }
-      } catch (e) {
-        // Continue to the next URL in the list if an error occurs
-        print("error $e");
-        continue;
-      }
-    }
-    return null; // Return null if all fallbacks fail
+    return null;
   }
 
   /// Fallback method to get general messages when version-specific messages don't exist
   static Future<List<dynamic>?> _getFallbackMessages(String baseUrl) async {
-    try {
-      final fallbackUrl = '$baseUrl.json';
-      final uri = Uri.parse(fallbackUrl);
-
-      final response = await http
-          .get(
-            uri,
-            headers: {
-              'Accept': 'application/json',
-              'User-Agent': 'shots_studio_app',
-              'Content-Type': 'application/json',
-            },
-          )
-          .timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-
-        // Expect an object with a "messages" array
-        if (data is Map<String, dynamic> && data.containsKey('messages')) {
-          return data['messages'] as List<dynamic>;
-        } else if (data is List) {
-          // Fallback: direct array format
-          return data;
-        }
-
-        return null;
-      } else {
-        return null;
-      }
-    } catch (e) {
-      return null;
-    }
+    return null;
   }
 
   /// Process messages and return the most relevant one that should be shown

@@ -26,13 +26,11 @@ class _ApiKeyGuideDialogState extends State<ApiKeyGuideDialog> {
   @override
   void initState() {
     super.initState();
-    // Track API key guide dialog shown
-    AnalyticsService().logFeatureUsed('api_key_guide_dialog_shown');
+    // Analytics disabled
   }
 
   Future<void> _launchURL(String urlString) async {
-    // Track URL clicks from API key guide
-    AnalyticsService().logFeatureUsed('api_key_guide_url_clicked');
+    // Analytics disabled
 
     final Uri url = Uri.parse(urlString);
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
@@ -49,8 +47,7 @@ class _ApiKeyGuideDialogState extends State<ApiKeyGuideDialog> {
       return;
     }
 
-    // Track API key setup attempt
-    AnalyticsService().logFeatureUsed('api_key_setup_attempted');
+    // Analytics disabled
 
     setState(() {
       _isValidating = true;
@@ -70,8 +67,7 @@ class _ApiKeyGuideDialogState extends State<ApiKeyGuideDialog> {
 
     Navigator.of(context).pop();
 
-    // Track successful API key setup
-    AnalyticsService().logFeatureUsed('api_key_setup_completed');
+    // Analytics disabled
 
     widget.onApiKeyEntered(apiKey);
   }

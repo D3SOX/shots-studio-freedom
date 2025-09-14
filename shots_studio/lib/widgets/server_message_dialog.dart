@@ -145,33 +145,8 @@ class ServerMessageDialog extends StatelessWidget {
   static Future<void> showServerMessageDialogIfAvailable(
     BuildContext context,
   ) async {
-    try {
-      final messageInfo = await ServerMessageService.checkForMessages();
-
-      if (messageInfo != null && context.mounted) {
-        // Mark message as shown if it's a show_once message
-        if (messageInfo.showOnce) {
-          await ServerMessageService.markMessageAsShown(messageInfo.id);
-        }
-
-        // Log analytics for message shown
-        AnalyticsService().logFeatureUsed('message_${messageInfo.id}_shown');
-
-        // Show as notification or dialog based on message settings
-        if (messageInfo.isNotification) {
-          await _showAsNotification(messageInfo);
-        } else {
-          showDialog(
-            context: context,
-            barrierDismissible: true,
-            builder: (context) => ServerMessageDialog(messageInfo: messageInfo),
-          );
-        }
-      }
-    } catch (e) {
-      // Log error analytics
-      AnalyticsService().logFeatureUsed('server_message_error');
-    }
+    // Disabled: do not fetch or show server messages
+    return;
   }
 
   /// Shows the message as a notification instead of a dialog

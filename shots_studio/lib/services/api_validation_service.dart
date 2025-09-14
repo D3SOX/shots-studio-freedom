@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+// http removed for API validation (Gemini disabled)
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shots_studio/services/snackbar_service.dart';
 import 'package:shots_studio/services/analytics/analytics_service.dart';
@@ -14,8 +14,7 @@ class ApiValidationService {
   factory ApiValidationService() => _instance;
   ApiValidationService._internal();
 
-  static const String _baseUrl =
-      'https://generativelanguage.googleapis.com/v1beta/models';
+  static const String _baseUrl = '';
   static const String _apiKeyValidPrefKey = 'api_key_valid';
   static const String _lastValidationTimePrefKey = 'last_validation_time';
   static const Duration _validationCacheDuration = Duration(hours: 24);
@@ -60,12 +59,17 @@ class ApiValidationService {
       );
     }
 
+    // Gemini disabled: treat as invalid without network call
     if (showMessages) {
-      SnackbarService().showInfo(context, 'Validating API key...');
+      SnackbarService().showError(context, 'Cloud AI disabled in this build');
     }
 
     try {
-      final result = await _performValidation(apiKey, modelName);
+      final result = ApiValidationResult(
+        isValid: false,
+        error: 'Cloud AI disabled',
+        shouldRetry: false,
+      );
 
       // Cache the result
       await _cacheValidationResult(result.isValid);
@@ -80,17 +84,10 @@ class ApiValidationService {
       }
 
       if (showMessages) {
-        if (result.isValid) {
-          SnackbarService().showSuccess(
-            context,
-            'API key validated successfully',
-          );
-        } else {
-          SnackbarService().showError(
-            context,
-            result.error ?? 'API key validation failed',
-          );
-        }
+        SnackbarService().showError(
+          context,
+          result.error ?? 'Cloud AI disabled',
+        );
       }
 
       return result;
@@ -117,96 +114,11 @@ class ApiValidationService {
     String apiKey,
     String modelName,
   ) async {
-    final url = Uri.parse('$_baseUrl/$modelName:generateContent?key=$apiKey');
-
-    final requestBody = jsonEncode({
-      'contents': [
-        {
-          'parts': [
-            {
-              'text':
-                  'Hello, this is a test message to validate the API key. Please respond with "API key is valid".',
-            },
-          ],
-        },
-      ],
-    });
-
-    final headers = {'Content-Type': 'application/json'};
-
-    try {
-      final response = await http
-          .post(url, headers: headers, body: requestBody)
-          .timeout(const Duration(seconds: 15));
-
-      if (response.statusCode == 200) {
-        final responseJson = jsonDecode(response.body);
-
-        // Check if we got a valid response structure
-        if (responseJson['candidates'] != null &&
-            responseJson['candidates'].isNotEmpty &&
-            responseJson['candidates'][0]['content'] != null) {
-          return ApiValidationResult(isValid: true);
-        } else {
-          return ApiValidationResult(
-            isValid: false,
-            error: 'Unexpected response format',
-            shouldRetry: false,
-          );
-        }
-      } else {
-        final responseJson = jsonDecode(response.body);
-        String errorMessage = 'Unknown error';
-
-        if (responseJson['error'] != null) {
-          errorMessage =
-              responseJson['error']['message'] ?? 'API request failed';
-
-          // Check for specific error types
-          if (errorMessage.toLowerCase().contains('api key not valid') ||
-              errorMessage.toLowerCase().contains('invalid key') ||
-              errorMessage.toLowerCase().contains('unauthorized')) {
-            return ApiValidationResult(
-              isValid: false,
-              error:
-                  'Invalid API key. Please check your API key and try again.',
-              shouldRetry: false,
-            );
-          } else if (errorMessage.toLowerCase().contains('quota') ||
-              errorMessage.toLowerCase().contains('limit')) {
-            return ApiValidationResult(
-              isValid: false,
-              error: 'API quota exceeded. Please check your usage limits.',
-              shouldRetry: true,
-            );
-          }
-        }
-
-        return ApiValidationResult(
-          isValid: false,
-          error: errorMessage,
-          shouldRetry: response.statusCode >= 500,
-        );
-      }
-    } on SocketException catch (e) {
-      return ApiValidationResult(
-        isValid: false,
-        error: 'Network error: ${e.message}',
-        shouldRetry: true,
-      );
-    } on TimeoutException catch (_) {
-      return ApiValidationResult(
-        isValid: false,
-        error: 'Request timed out. Please check your internet connection.',
-        shouldRetry: true,
-      );
-    } catch (e) {
-      return ApiValidationResult(
-        isValid: false,
-        error: 'Unexpected error: ${e.toString()}',
-        shouldRetry: true,
-      );
-    }
+    return ApiValidationResult(
+      isValid: false,
+      error: 'Cloud AI disabled',
+      shouldRetry: false,
+    );
   }
 
   /// Checks if the cached validation result is still valid
@@ -341,22 +253,8 @@ class ApiValidationService {
   }) async {
     if (apiKey.isEmpty) return false;
 
-    if (!forceValidation && _isCacheValid()) {
-      return _cachedValidationResult ?? false;
-    }
-
-    try {
-      final result = await _performValidation(apiKey, modelName);
-
-      // Cache the result
-      await _cacheValidationResult(result.isValid);
-      _cachedValidationResult = result.isValid;
-      _lastValidationTime = DateTime.now();
-
-      return result.isValid;
-    } catch (e) {
-      return false;
-    }
+    // Always false since cloud AI is disabled
+    return false;
   }
 }
 

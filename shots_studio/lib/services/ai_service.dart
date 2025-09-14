@@ -147,8 +147,9 @@ abstract class APIProvider {
     required List<Map<String, String>> screenshotMetadata,
     Map<String, dynamic> additionalParams = const {},
   });
-} // Gemini API provider implementation
+}
 
+// Gemini cloud provider disabled (no network calls)
 class GeminiAPIProvider implements APIProvider {
   static const String _baseUrl =
       'https://generativelanguage.googleapis.com/v1beta/models';
@@ -163,70 +164,10 @@ class GeminiAPIProvider implements APIProvider {
     Map<String, dynamic> requestData,
     AIConfig config,
   ) async {
-    // Check if this is an empty request (all images already processed)
-    if (requestData.containsKey('contents')) {
-      final contents = requestData['contents'] as List;
-      if (contents.length == 1 &&
-          contents[0]['parts'] != null &&
-          (contents[0]['parts'] as List).length == 1 &&
-          (contents[0]['parts'][0]['text'] as String).contains(
-            'No images to process',
-          )) {
-        return {
-          'data': '[]', // Empty results
-          'statusCode': 200,
-          'skipped': true,
-        };
-      }
-    }
-
-    final url = Uri.parse(
-      '$_baseUrl/${config.modelName}:generateContent?key=${config.apiKey}',
-    );
-
-    final requestBody = jsonEncode(requestData);
-    final headers = {'Content-Type': 'application/json'};
-
-    try {
-      final response = await http
-          .post(url, headers: headers, body: requestBody)
-          .timeout(Duration(seconds: config.timeoutSeconds));
-
-      final responseJson = jsonDecode(response.body);
-
-      if (response.statusCode == 200) {
-        final candidates = responseJson['candidates'] as List?;
-        if (candidates != null && candidates.isNotEmpty) {
-          final content = candidates[0]['content'] as Map?;
-          if (content != null) {
-            final parts = content['parts'] as List?;
-            if (parts != null && parts.isNotEmpty) {
-              final text = parts[0]['text'] as String?;
-              if (text != null) {
-                return {'data': text, 'statusCode': response.statusCode};
-              }
-            }
-          }
-        }
-        return {
-          'error': 'No response text from AI',
-          'statusCode': response.statusCode,
-          'rawResponse': response.body,
-        };
-      } else {
-        return {
-          'error': responseJson['error']?['message'] ?? 'API Error',
-          'statusCode': response.statusCode,
-          'rawResponse': response.body,
-        };
-      }
-    } on SocketException catch (e) {
-      return {'error': 'Network error: ${e.message}', 'statusCode': 503};
-    } on TimeoutException catch (_) {
-      return {'error': 'Request timed out', 'statusCode': 408};
-    } catch (e) {
-      return {'error': 'Unexpected error: ${e.toString()}', 'statusCode': 500};
-    }
+    return {
+      'error': 'Gemini cloud provider disabled in this build',
+      'statusCode': 403,
+    };
   }
 
   @override
@@ -264,12 +205,7 @@ class GeminiAPIProvider implements APIProvider {
       }
     }
 
-    return {
-      'contents': [
-        {'parts': contentParts},
-      ],
-      ...additionalParams,
-    };
+    return {'error': 'Gemini cloud provider disabled', 'statusCode': 403};
   }
 
   @override
@@ -301,12 +237,7 @@ class GeminiAPIProvider implements APIProvider {
       }
     }
 
-    return {
-      'contents': [
-        {'parts': contentParts},
-      ],
-      ...additionalParams,
-    };
+    return {'error': 'Gemini cloud provider disabled', 'statusCode': 403};
   }
 }
 

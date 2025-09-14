@@ -83,7 +83,7 @@ class _QuickSettingsSectionState extends State<QuickSettingsSection> {
     for (final provider in AIProviderConfig.getProviders()) {
       final prefKey = AIProviderConfig.getPrefKeyForProvider(provider);
       if (prefKey != null) {
-        final isEnabled = prefs.getBool(prefKey) ?? (provider == 'gemini');
+        final isEnabled = prefs.getBool(prefKey) ?? (provider == 'gemma');
         if (isEnabled) {
           availableModels.addAll(
             AIProviderConfig.getModelsForProvider(provider),
@@ -490,7 +490,7 @@ class _QuickSettingsSectionState extends State<QuickSettingsSection> {
                 decoration: InputDecoration(
                   hintText:
                       AppLocalizations.of(context)?.enterApiKey ??
-                      'Enter Gemini API Key',
+                      'Cloud AI disabled',
                   helperText: _getApiKeyHelperText(),
                   helperStyle: TextStyle(
                     color: _getApiKeyHelperColor(theme),
@@ -522,9 +522,7 @@ class _QuickSettingsSectionState extends State<QuickSettingsSection> {
                   if (_apiKeyController.text.isEmpty && value.isNotEmpty) {
                     // API key was added
                     AnalyticsService().logFeatureUsed('api_key_added_quick');
-                    AnalyticsService().logFeatureAdopted(
-                      'gemini_api_configured',
-                    );
+                    // Analytics disabled
                   } else if (_apiKeyController.text.isNotEmpty &&
                       value.isEmpty) {
                     // API key was removed

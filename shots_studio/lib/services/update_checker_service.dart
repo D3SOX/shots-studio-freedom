@@ -1,14 +1,14 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+// http removed for offline build
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // TODO: Add don't show again functionality for messages
 
 class UpdateCheckerService {
-  static const String githubApiUrl = 'https://api.github.com/repos';
-  static const String repoOwner = 'AnsahMohammad';
-  static const String repoName = 'shots-studio';
+  static const String githubApiUrl = '';
+  static const String repoOwner = '';
+  static const String repoName = '';
 
   /// Checks for app updates by comparing current version with latest GitHub release
   /// Returns null if no update available, or UpdateInfo if update is available
@@ -23,12 +23,8 @@ class UpdateCheckerService {
       final bool betaTestingEnabled =
           prefs.getBool('beta_testing_enabled') ?? false;
 
-      // Fetch latest release from GitHub (always get the very latest)
-      final latestRelease = await _getLatestRelease();
-      if (latestRelease == null) {
-        print('No latest release found or error fetching it.');
-        return null;
-      }
+      // Disabled: do not fetch updates over network
+      return null;
 
       final String tagName = latestRelease['tag_name'] ?? '';
 
@@ -74,30 +70,7 @@ class UpdateCheckerService {
 
   /// Fetches the latest release from GitHub API
   static Future<Map<String, dynamic>?> _getLatestRelease() async {
-    try {
-      final response = await http
-          .get(
-            Uri.parse('$githubApiUrl/$repoOwner/$repoName/releases/latest'),
-            headers: {
-              'Accept': 'application/vnd.github.v3+json',
-              'User-Agent': 'shots_studio_app',
-            },
-          )
-          .timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> release =
-            json.decode(response.body) as Map<String, dynamic>;
-
-        return release;
-      } else {
-        print('GitHub API error: ${response.statusCode}');
-        return null;
-      }
-    } catch (e) {
-      print('Network error fetching latest release: $e');
-      return null;
-    }
+    return null;
   }
 
   /// Extracts version number from GitHub tag (e.g., "v1.8.52" -> "1.8.52", "a1.8.52" -> "1.8.52")

@@ -198,19 +198,7 @@ class BackgroundProcessingService {
         );
       });
 
-      // Handle server message check request
-      service.on('check_server_messages').listen((event) async {
-        await _checkServerMessages(service);
-      });
-
-      // Start periodic server message checking (every 30 minutes)
-      Timer.periodic(const Duration(minutes: 30), (timer) async {
-        if (!_serviceRunning) {
-          timer.cancel();
-          return;
-        }
-        await _checkServerMessages(service);
-      });
+      // Server message checks disabled
 
       // Handle stop service request
       service.on('stopService').listen((event) async {
@@ -808,8 +796,7 @@ class BackgroundProcessingService {
         }
       }
 
-      // Trigger immediate server message check
-      service.invoke('check_server_messages');
+      // Disabled
       return true;
     } catch (e) {
       return false;
@@ -820,9 +807,7 @@ class BackgroundProcessingService {
   Future<void> checkServerMessagesNow() async {
     try {
       final service = FlutterBackgroundService();
-      if (await service.isRunning()) {
-        service.invoke('check_server_messages');
-      }
+      // Disabled
     } catch (e) {
       // Handle error silently
     }
@@ -831,37 +816,8 @@ class BackgroundProcessingService {
   // Static method to check server messages from background service
   static Future<void> _checkServerMessages(ServiceInstance service) async {
     try {
-      // Check for server messages
-      final message = await ServerMessageService.checkForMessages(
-        forceFetch: false,
-      );
-
-      if (message != null && message.isNotification) {
-        // Initialize notification service instance
-        final notificationService = NotificationService();
-
-        // Show notification using NotificationService
-        await notificationService.showServerMessageImmediate(
-          messageId: message.id,
-          title: message.title,
-          body: message.message,
-          isUrgent: message.priority == MessagePriority.high,
-        );
-
-        // Mark message as shown if it's a show-once message
-        if (message.showOnce) {
-          await ServerMessageService.markMessageAsShown(message.id);
-        }
-
-        // Send result back to app
-        service.invoke('server_message_checked', {
-          'messageFound': true,
-          'messageId': message.id,
-          'title': message.title,
-        });
-      } else {
-        service.invoke('server_message_checked', {'messageFound': false});
-      }
+      // Disabled
+      service.invoke('server_message_checked', {'messageFound': false});
     } catch (e) {
       // Log error but don't crash the service
       service.invoke('server_message_error', {'error': e.toString()});

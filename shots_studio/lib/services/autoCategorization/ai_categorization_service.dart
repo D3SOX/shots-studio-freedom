@@ -51,7 +51,7 @@ class AICategorizer {
     }
 
     final String modelName =
-        prefs.getString('modelName') ?? 'gemini-2.5-flash-lite';
+        prefs.getString('modelName') ?? 'gemma';
     final int maxParallel = AIProviderConfig.getMaxCategorizationLimitForModel(
       modelName,
     );

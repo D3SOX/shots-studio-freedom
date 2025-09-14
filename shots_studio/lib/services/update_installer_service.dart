@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
+// http removed for offline build
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'update_checker_service.dart';
@@ -31,11 +31,8 @@ class UpdateInstallerService {
 
       onProgress?.call(0.1, 'Finding APK download URL...');
 
-      // Get the APK download URL from the release
-      final apkUrl = await _getApkDownloadUrl(updateInfo);
-      if (apkUrl == null) {
-        throw Exception('No APK file found in release');
-      }
+      // Disabled: network downloads removed
+      throw Exception('In-app update downloads disabled in this build');
 
       onProgress?.call(0.2, 'Starting download...');
 
@@ -97,39 +94,7 @@ class UpdateInstallerService {
 
   /// Gets the APK download URL from the GitHub release
   static Future<String?> _getApkDownloadUrl(UpdateInfo updateInfo) async {
-    try {
-      final response = await http
-          .get(
-            Uri.parse(
-              'https://api.github.com/repos/AnsahMohammad/shots-studio/releases/tags/${updateInfo.tagName}',
-            ),
-            headers: {
-              'Accept': 'application/vnd.github.v3+json',
-              'User-Agent': 'shots_studio_app',
-            },
-          )
-          .timeout(const Duration(seconds: 15));
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> release = json.decode(response.body);
-        final List<dynamic> assets = release['assets'] ?? [];
-
-        // Look for APK file in assets
-        for (final asset in assets) {
-          final String name = asset['name'] ?? '';
-          final String downloadUrl = asset['browser_download_url'] ?? '';
-
-          if (name.toLowerCase().endsWith('.apk') && downloadUrl.isNotEmpty) {
-            return downloadUrl;
-          }
-        }
-      }
-
-      return null;
-    } catch (e) {
-      print('Error getting APK download URL: $e');
-      return null;
-    }
+    return null;
   }
 
   /// Downloads the APK file with progress tracking
@@ -138,58 +103,11 @@ class UpdateInstallerService {
     String version,
     void Function(double progress)? onProgress,
   ) async {
-    final client = http.Client();
+    throw Exception('Network download disabled');
 
-    try {
-      // Get app directory for storing the APK
-      final Directory tempDir = await getTemporaryDirectory();
-      final String fileName = 'shots_studio_v${version}.apk';
-      final File apkFile = File('${tempDir.path}/$fileName');
-
-      // Delete existing file if it exists
-      if (await apkFile.exists()) {
-        await apkFile.delete();
-      }
-
-      // Start streaming download
-      final request = http.Request('GET', Uri.parse(url));
-      final response = await client.send(request);
-
-      if (response.statusCode != 200) {
-        throw Exception('Failed to download APK: ${response.statusCode}');
-      }
-
-      final int totalBytes = response.contentLength ?? 0;
-      int downloadedBytes = 0;
-
-      final sink = apkFile.openWrite();
-
-      await response.stream.listen((List<int> chunk) {
-        downloadedBytes += chunk.length;
-        sink.add(chunk);
-
-        if (totalBytes > 0) {
-          final progress = downloadedBytes / totalBytes;
-          onProgress?.call(progress);
-        }
-      }).asFuture();
-
-      await sink.close();
-
-      // Verify file was downloaded completely
-      if (totalBytes > 0) {
-        final actualSize = await apkFile.length();
-        if (actualSize != totalBytes) {
-          throw Exception(
-            'Download incomplete: expected $totalBytes bytes, got $actualSize bytes',
-          );
-        }
-      }
-
-      return apkFile;
-    } finally {
-      client.close();
-    }
+    // unreachable
+    // ignore: dead_code
+    return File('');
   }
 
   /// Installs the APK file
@@ -213,15 +131,6 @@ class UpdateInstallerService {
   /// Gets estimated download size for the update
   static Future<int?> getUpdateSize(UpdateInfo updateInfo) async {
     try {
-      final apkUrl = await _getApkDownloadUrl(updateInfo);
-      if (apkUrl == null) return null;
-
-      final response = await http.head(Uri.parse(apkUrl));
-      if (response.statusCode == 200) {
-        final contentLength = response.headers['content-length'];
-        return contentLength != null ? int.tryParse(contentLength) : null;
-      }
-
       return null;
     } catch (e) {
       return null;

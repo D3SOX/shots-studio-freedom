@@ -1,30 +1,25 @@
-// This is a compatibility wrapper that maintains the same interface as the Firebase AnalyticsService
-// but uses PostHog underneath. This allows for a seamless migration without changing existing code.
-
-import 'posthog_analytics_service.dart';
+// No-op analytics service: preserves API but performs no tracking.
 
 class AnalyticsService {
   static final AnalyticsService _instance = AnalyticsService._internal();
   factory AnalyticsService() => _instance;
   AnalyticsService._internal();
 
-  final PostHogAnalyticsService _postHogService = PostHogAnalyticsService();
-
   // Initialize analytics
   Future<void> initialize() async {
-    await _postHogService.initialize();
+    // no-op
   }
 
-  bool get analyticsEnabled => _postHogService.analyticsEnabled;
+  bool get analyticsEnabled => false;
 
   // Enable analytics and telemetry
   Future<void> enableAnalytics() async {
-    await _postHogService.enableAnalytics();
+    // no-op
   }
 
   // Disable analytics and telemetry
   Future<void> disableAnalytics() async {
-    await _postHogService.disableAnalytics();
+    // no-op
   }
 
   // Screenshot Processing Analytics
@@ -32,27 +27,24 @@ class AnalyticsService {
     int processingTimeMs,
     int screenshotCount,
   ) async {
-    await _postHogService.logBatchProcessingTime(
-      processingTimeMs,
-      screenshotCount,
-    );
+    // no-op
   }
 
   Future<void> logAIProcessingSuccess(int screenshotCount) async {
-    await _postHogService.logAIProcessingSuccess(screenshotCount);
+    // no-op
   }
 
   Future<void> logAIProcessingFailure(String error, int screenshotCount) async {
-    await _postHogService.logAIProcessingFailure(error, screenshotCount);
+    // no-op
   }
 
   // Collection Management
   Future<void> logCollectionCreated() async {
-    await _postHogService.logCollectionCreated();
+    // no-op
   }
 
   Future<void> logCollectionDeleted() async {
-    await _postHogService.logCollectionDeleted();
+    // no-op
   }
 
   Future<void> logCollectionStats(
@@ -61,93 +53,85 @@ class AnalyticsService {
     int minScreenshots,
     int maxScreenshots,
   ) async {
-    await _postHogService.logCollectionStats(
-      totalCollections,
-      avgScreenshots,
-      minScreenshots,
-      maxScreenshots,
-    );
+    // no-op
   }
 
   // User Interaction
   Future<void> logScreenView(String screenName) async {
-    await _postHogService.logScreenView(screenName);
+    // no-op
   }
 
   Future<void> logFeatureUsed(String featureName) async {
-    await _postHogService.logFeatureUsed(featureName);
+    // no-op
   }
 
   Future<void> logUserPath(String fromScreen, String toScreen) async {
-    await _postHogService.logUserPath(fromScreen, toScreen);
+    // no-op
   }
 
   // Performance Metrics
   Future<void> logAppStartup() async {
-    await _postHogService.logAppStartup();
+    // no-op
   }
 
   Future<void> logImageLoadTime(int loadTimeMs, String imageSource) async {
-    await _postHogService.logImageLoadTime(loadTimeMs, imageSource);
+    // no-op
   }
 
   // Error Tracking
   Future<void> logNetworkError(String error, String context) async {
-    await _postHogService.logNetworkError(error, context);
+    // no-op
   }
 
   // User Engagement
   Future<void> logActiveDay() async {
-    await _postHogService.logActiveDay();
+    // no-op
   }
 
   Future<void> logFeatureAdopted(String featureName) async {
-    await _postHogService.logFeatureAdopted(featureName);
+    // no-op
   }
 
   Future<void> logReturnUser(int daysSinceLastOpen) async {
-    await _postHogService.logReturnUser(daysSinceLastOpen);
+    // no-op
   }
 
   Future<void> logUsageTime(String timeOfDay) async {
-    await _postHogService.logUsageTime(timeOfDay);
+    // no-op
   }
 
   // Search and Discovery
   Future<void> logSearchQuery(String query, int resultsCount) async {
-    await _postHogService.logSearchQuery(query, resultsCount);
+    // no-op
   }
 
   Future<void> logSearchTimeToResult(int timeMs, bool successful) async {
-    await _postHogService.logSearchTimeToResult(timeMs, successful);
+    // no-op
   }
 
   Future<void> logSearchSuccess(String query, int timeMs) async {
-    await _postHogService.logSearchSuccess(query, timeMs);
+    // no-op
   }
 
   // Storage and Resources
   Future<void> logStorageUsage(int totalSizeBytes, int screenshotCount) async {
-    await _postHogService.logStorageUsage(totalSizeBytes, screenshotCount);
+    // no-op
   }
 
   Future<void> logBackgroundResourceUsage(
     int processingTimeMs,
     int memoryUsageMB,
   ) async {
-    await _postHogService.logBackgroundResourceUsage(
-      processingTimeMs,
-      memoryUsageMB,
-    );
+    // no-op
   }
 
   // App Health
   Future<void> logBatteryImpact(String level) async {
-    await _postHogService.logBatteryImpact(level);
+    // no-op
   }
 
   Future<void> logNetworkUsage(int bytesUsed, String operation) async {
-    await _postHogService.logNetworkUsage(bytesUsed, operation);
+    // no-op
   }
 
   Future<void> logBackgroundTaskCompleted(
@@ -155,50 +139,43 @@ class AnalyticsService {
     bool successful,
     int durationMs,
   ) async {
-    await _postHogService.logBackgroundTaskCompleted(
-      taskName,
-      successful,
-      durationMs,
-    );
+    // no-op
   }
 
   // Statistics (Very Important)
   Future<void> logTotalScreenshotsProcessed(int count) async {
-    await _postHogService.logTotalScreenshotsProcessed(count);
+    // no-op
   }
 
   Future<void> logTotalCollections(int count) async {
-    await _postHogService.logTotalCollections(count);
+    // no-op
   }
 
   Future<void> logScreenshotsInCollection(
     int collectionId,
     int screenshotCount,
   ) async {
-    await _postHogService.logScreenshotsInCollection(
-      collectionId,
-      screenshotCount,
-    );
+    // no-op
   }
 
   Future<void> logScreenshotsAutoCategorized(int count) async {
-    await _postHogService.logScreenshotsAutoCategorized(count);
+    // no-op
   }
 
   Future<void> logReminderSet() async {
-    await _postHogService.logReminderSet();
+    // no-op
   }
 
   Future<void> logInstallInfo() async {
-    await _postHogService.logInstallInfo();
+    // no-op
   }
 
   Future<void> logInstallSource(String source) async {
-    await _postHogService.logInstallSource(source);
+    // no-op
   }
 
   Future<void> logCurrentUsageTime() async {
-    await _postHogService.logCurrentUsageTime();
+    // no-op
   }
 
   // Gemma-specific AI processing analytics
@@ -211,15 +188,7 @@ class AnalyticsService {
     required String? deviceModel,
     required bool useCPU,
   }) async {
-    await _postHogService.logGemmaProcessingTime(
-      processingTimeMs: processingTimeMs,
-      screenshotCount: screenshotCount,
-      maxParallelAI: maxParallelAI,
-      modelName: modelName,
-      devicePlatform: devicePlatform,
-      deviceModel: deviceModel,
-      useCPU: useCPU,
-    );
+    // no-op
   }
 
   // Additional PostHog-specific methods (optional to use)
@@ -229,27 +198,27 @@ class AnalyticsService {
     String userId, [
     Map<String, dynamic>? properties,
   ]) async {
-    await _postHogService.identifyUser(userId, properties);
+    // no-op
   }
 
   /// Set person properties for better user analytics
   Future<void> setPersonProperties(Map<String, dynamic> properties) async {
-    await _postHogService.setPersonProperties(properties);
+    // no-op
   }
 
   /// Reset user session (useful for logout)
   Future<void> reset() async {
-    await _postHogService.reset();
+    // no-op
   }
 
   /// Check if a feature flag is enabled
   Future<bool> isFeatureEnabled(String featureKey) async {
-    return await _postHogService.isFeatureEnabled(featureKey);
+    return false;
   }
 
   /// Alias user (link anonymous user to identified user)
   Future<void> alias(String alias) async {
-    await _postHogService.alias(alias);
+    // no-op
   }
 
   /// Group analytics (for organization-level analytics)
@@ -258,11 +227,11 @@ class AnalyticsService {
     String groupKey, [
     Map<String, dynamic>? properties,
   ]) async {
-    await _postHogService.group(groupType, groupKey, properties);
+    // no-op
   }
 
   /// Get device information for analytics
   Future<Map<String, String>> getDeviceInfo() async {
-    return await _postHogService.getDeviceInfo();
+    return {'platform': 'unknown', 'model': 'unknown'};
   }
 }
