@@ -293,22 +293,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       });
       _setupBackgroundServiceListeners();
     }
-    // Show privacy dialog after the first frame
+    // After first frame, proceed directly without privacy dialog
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Show privacy dialog and only proceed to API key guide if accepted
-      bool privacyAccepted = await showPrivacyScreenIfNeeded(context);
-      if (privacyAccepted && context.mounted) {
-        // Log install info when onboarding is completed
-        AnalyticsService().logInstallInfo();
-        // Log install source analytics
-        AnalyticsService().logInstallSource(BuildSource.current.value);
+      if (!mounted) return;
 
-        // Cloud AI disabled: skip API key guide
+      // Log install info and source (no-op analytics)
+      AnalyticsService().logInstallInfo();
+      AnalyticsService().logInstallSource(BuildSource.current.value);
 
-        _checkForUpdates();
-        // Server messages disabled
-        _autoProcessWithGemini();
-      }
+      _checkForUpdates();
+      _autoProcessWithGemini();
     });
   }
 
