@@ -72,3 +72,8 @@
 # Remove Google Play Core (blocklisted by F-Droid)
 -dontwarn com.google.android.play.core.**
 -assumenosideeffects class com.google.android.play.core.** { *; }
+
+# OkHttp optional TLS providers (not bundled)
+-dontwarn org.conscrypt.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.openjsse.**
