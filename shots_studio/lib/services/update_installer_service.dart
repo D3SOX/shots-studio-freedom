@@ -29,29 +29,8 @@ class UpdateInstallerService {
         }
       }
 
-      onProgress?.call(0.1, 'Finding APK download URL...');
-
-      // Disabled: network downloads removed
-      throw Exception('In-app update downloads disabled in this build');
-
-      onProgress?.call(0.2, 'Starting download...');
-
-      // Download the APK file
-      final apkFile = await _downloadApk(
-        apkUrl,
-        updateInfo.latestVersion,
-        (progress) =>
-            onProgress?.call(0.2 + (progress * 0.7), 'Downloading update...'),
-      );
-
-      onProgress?.call(0.9, 'Installing update...');
-
-      // Install the APK
-      await _installApk(apkFile.path);
-
-      onProgress?.call(1.0, 'Installation complete!');
-
-      return true;
+      onProgress?.call(0.1, 'In-app update downloads disabled');
+      throw Exception('In-app update downloads are disabled in this build');
     } catch (e) {
       onProgress?.call(0.0, 'Error: $e');
       rethrow;

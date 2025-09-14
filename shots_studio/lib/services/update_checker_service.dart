@@ -25,44 +25,6 @@ class UpdateCheckerService {
 
       // Disabled: do not fetch updates over network
       return null;
-
-      final String tagName = latestRelease['tag_name'] ?? '';
-
-      // Determine if it's a pre-release based on tag name
-      final bool isPreRelease =
-          tagName.startsWith('a') || tagName.startsWith('b');
-      final bool isStableRelease = tagName.startsWith('v');
-
-      // Only show update if:
-      // - It's a stable release (all users see it), OR
-      // - It's a pre-release AND user has beta testing enabled
-      if (!isStableRelease && !isPreRelease) {
-        return null; // Invalid tag format
-      }
-
-      if (isPreRelease && !betaTestingEnabled) {
-        return null; // Pre-release but user doesn't want beta updates
-      }
-
-      // Compare versions
-      final latestVersion = _extractVersionFromTag(tagName);
-      if (latestVersion == null) {
-        return null;
-      }
-
-      if (_isNewerVersion(currentVersion, latestVersion)) {
-        return UpdateInfo(
-          currentVersion: currentVersion,
-          latestVersion: latestVersion,
-          releaseUrl: latestRelease['html_url'],
-          releaseNotes: latestRelease['body'] ?? '',
-          tagName: tagName,
-          publishedAt: latestRelease['published_at'],
-          isPreRelease: isPreRelease,
-        );
-      }
-
-      return null;
     } catch (e) {
       return null;
     }
