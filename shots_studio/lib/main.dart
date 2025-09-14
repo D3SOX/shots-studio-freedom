@@ -813,6 +813,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     //  if gemma skip API key check
     if (_selectedModelName == 'gemma') {
       print("Main app: Using Gemma model, no API key required");
+      // Ensure Gemma model file is configured before proceeding
+      final prefs = await SharedPreferences.getInstance();
+      final modelPath = prefs.getString('gemma_model_path');
+      if (modelPath == null || modelPath.isEmpty) {
+        print("Main app: Gemma model not configured; aborting processing");
+        SnackbarService().showWarning(
+          context,
+          'Local AI model not set up. Open AI Settings to select/download the Gemma model first.',
+        );
+        return;
+      }
     } else if (_apiKey == null || _apiKey!.isEmpty) {
       print("Main app: No API key configured");
       SnackbarService().showError(
@@ -1515,10 +1526,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   // Helper method to check and auto-process screenshots
   Future<void> _autoProcessWithGemini() async {
     // Only auto-process if enabled, we have an API key, we're not already processing,
-    if (_autoProcessEnabled &&
-            !_isProcessingAI &&
-            ((_apiKey != null && _apiKey!.isNotEmpty)) ||
-        (_selectedModelName == 'gemma')) {
+    bool shouldAutoProcess = false;
+    if (_autoProcessEnabled && !_isProcessingAI) {
+      if (_selectedModelName == 'gemma') {
+        // Gate on Gemma model availability
+        final prefs = await SharedPreferences.getInstance();
+        final modelPath = prefs.getString('gemma_model_path');
+        shouldAutoProcess = modelPath != null && modelPath.isNotEmpty;
+      } else {
+        shouldAutoProcess = _apiKey != null && _apiKey!.isNotEmpty;
+      }
+    }
+
+    if (shouldAutoProcess) {
       // Check if there are any unprocessed screenshots
       final unprocessedScreenshots =
           _activeScreenshots.where((s) => !s.aiProcessed).toList();
