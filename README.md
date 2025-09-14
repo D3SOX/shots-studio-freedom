@@ -16,6 +16,25 @@ Now powered by **on-device AI with Gemma**, you can process screenshots **offlin
 
 ---
 
+## About this privacy-focused fork
+
+This fork removes all network-based analytics and cloud features to maximize privacy. The app runs fully locally by default.
+
+What’s removed:
+- Analytics/telemetry (PostHog, Sentry) and platform metadata. All analytics calls are no-ops.
+- Cloud AI (Gemini): no API calls to `generativelanguage.googleapis.com`, no API key prompts, and no cloud processing.
+- Remote server messages/announcements fetching from the authors’ servers.
+- In-app update checks and APK downloads from GitHub.
+
+What you still get:
+- 100% on-device AI with Gemma for screenshot analysis and auto-tagging.
+- OCR via Tesseract, local notifications, and background processing — all local.
+- No images or usage metadata are sent off-device by this fork.
+
+Builds and flavors are unchanged; the recommended flavor is `fdroid`.
+
+---
+
 ## What is Shots Studio?
 
 Drowning in screenshots you can’t find when you need them?  
@@ -69,10 +88,7 @@ With Shots Studio, you can:
 
 ## How It Works + Privacy
 
-By default, Shots Studio can send your screenshot data to **Google’s Gemini API** for cloud-powered analysis.  
-For privacy-first use, switch to **Gemma on-device AI** — no data leaves your phone.
-
-More details: [Gemini API Privacy Policy](https://ai.google.dev/gemini-api/terms).
+Privacy note (this fork): Cloud AI via Gemini is disabled. Only on-device Gemma is available, and no data leaves your device.
 
 ---
 
