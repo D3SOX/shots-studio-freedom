@@ -731,66 +731,7 @@ class _AISettingsScreenState extends State<AISettingsScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Gemini 2.0 Flash
-                  _buildModelCard(
-                    theme: theme,
-                    modelName: 'Gemini 2.0 Flash',
-                    description: '2.0 model, least expensive',
-                    icon: Icons.flash_on,
-                    iconColor: Colors.yellow,
-                    useCases: [
-                      'Basic screenshot analysis',
-                      'Limited daily processing',
-                      'Cost-conscious users',
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Gemini 2.5 Flash Lite
-                  _buildModelCard(
-                    theme: theme,
-                    modelName: 'Gemini 2.5 Flash Lite',
-                    description: 'Better than 2.0 and cost effective',
-                    icon: Icons.flash_auto,
-                    iconColor: Colors.orange,
-                    useCases: [
-                      'Lots of images without hitting free quota',
-                      'Good balance of quality and cost',
-                      'Regular daily usage',
-                    ],
-                    recommended: true,
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Gemini 2.5 Flash
-                  _buildModelCard(
-                    theme: theme,
-                    modelName: 'Gemini 2.5 Flash',
-                    description: 'High quality analysis with fast processing',
-                    icon: Icons.flash_on,
-                    iconColor: Colors.blue,
-                    useCases: [
-                      'High volume processing',
-                      'Better accuracy for complex screenshots',
-                      'Professional use cases',
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Gemini 2.5 Pro
-                  _buildModelCard(
-                    theme: theme,
-                    modelName: 'Gemini 2.5 Pro',
-                    description: 'Premium model with highest accuracy',
-                    icon: Icons.star,
-                    iconColor: Colors.purple,
-                    useCases: [
-                      'Maximum accuracy needed',
-                      'Complex screenshot analysis',
-                      'Professional/enterprise use',
-                    ],
-                  ),
-                  const SizedBox(height: 12),
+                  // Cloud Gemini models removed for privacy-focused fork
 
                   // Gemma (Local)
                   _buildModelCard(

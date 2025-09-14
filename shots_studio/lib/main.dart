@@ -297,12 +297,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
 
+      // Ensure any previous background service is stopped to avoid plugin warnings
+      try {
+        await BackgroundProcessingService().shutdownService();
+      } catch (_) {}
+
       // Log install info and source (no-op analytics)
       AnalyticsService().logInstallInfo();
       AnalyticsService().logInstallSource(BuildSource.current.value);
 
-      _checkForUpdates();
-      _autoProcessWithGemini();
+      // Disable automatic update checks and Gemini auto-processing in privacy fork
+      // _checkForUpdates();
+      // _autoProcessWithGemini();
     });
   }
 
